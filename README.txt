@@ -1,12 +1,16 @@
 TASK 5 DATA - Mining production
 
+Live application: https://itransition-mining-artix6034.onrender.com
+Public source: https://github.com/Artix6034/itransition_task5
+Editable generator: https://docs.google.com/spreadsheets/d/1HKhph4LRFOctd8pjzx-MHFLBsOdMIFnh2svjzlTGK7s/edit
+
 1. Generator
 Weyland_Yutani_Mining_Simulator.xlsx has four sheets and two charts. It supports
 1-12 mines, 1-180 days, Normal/Uniform, smoothing, weekly factors, a trend and
 four probabilistic events. The original workbook is preserved.
 
-Import it as a native Google spreadsheet. Enable editing for anyone with the
-link. Keep the Data sheet's first three headers: Date, Mine, Production.
+A native Google spreadsheet is already created at the link above, with editing
+for anyone with the link enabled. Keep the Data sheet's first three headers: Date, Mine, Production.
 The source has one row per mine per day. Internal helper columns may stay.
 
 2. Dashboard
@@ -17,7 +21,8 @@ Open http://127.0.0.1:5065
 
 Paste the Google Sheets URL into the source field and click Refresh data.
 Alternatively, set the SHEET_URL environment variable before starting the app.
-The server fetches Data!A:C on every dashboard refresh. Without a source URL,
+The server fetches Data!A:C on every dashboard refresh. Decimal dots and decimal
+commas are supported; use numeric cells without thousands separators in CSV. Without a source URL,
 it uses data/sample.csv, a clearly labelled 120-row workbook snapshot.
 It never silently substitutes the sample when a Google Sheets request fails.
 
@@ -39,7 +44,8 @@ Statistics and algorithms
 - Missing/duplicate records and invalid values produce errors instead of zeroes.
 
 3. PDF
-Download PDF report creates statistics, settings, one chart per series and a
+View PDF opens an inline preview; Download PDF report downloads the same report.
+The report includes statistics, settings, one chart per series and a
 separate short section for every flagged observation. Unicode mine names are
 supported by the embedded DejaVu font. A sample report is provided separately.
 

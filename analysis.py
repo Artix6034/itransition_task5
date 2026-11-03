@@ -45,7 +45,9 @@ def read_source(sheet_url=''):
             raw_date = item['Date'].strip()
             day = parse_date(raw_date)
             mine = item['Mine'].strip()
-            value = float(item['Production'].replace(',',''))
+            # Google Sheets CSV uses the spreadsheet's decimal separator.
+            number = item['Production'].strip().replace('\u00a0','').replace('\u202f','').replace(' ','')
+            value = float(number.replace(',','.'))
             if not mine or not math.isfinite(value) or value<0:
                 raise ValueError
             if (day,mine) in seen:

@@ -95,7 +95,7 @@ def report():
     try:
         settings,_,source,_,series,results=load(use_snapshot=True)
         return send_file(io.BytesIO(make_report(series,results,settings,source)),mimetype='application/pdf',
-                         as_attachment=True,download_name='mining_report.pdf')
+                         as_attachment=request.args.get('view')!='1',download_name='mining_report.pdf')
     except (ValueError,OSError,requests.RequestException) as error:
         return str(error),400
 

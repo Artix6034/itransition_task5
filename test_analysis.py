@@ -41,6 +41,9 @@ def test_routes_charts_pdf_and_bad_arguments():
         assert response.status_code==200 and response.data.startswith(b'\x89PNG')
     report=client.get('/report.pdf')
     assert report.status_code==200 and report.data.startswith(b'%PDF')
+    assert report.headers['Content-Disposition'].startswith('attachment;')
+    preview=client.get('/report.pdf?view=1')
+    assert preview.status_code==200 and preview.headers['Content-Disposition'].startswith('inline;')
     assert client.get('/?window=0').status_code==400
     assert client.get('/?sheet=https://example.com/secret').status_code==400
 
@@ -58,3 +61,14 @@ def test_sheet_is_read_again_on_refresh(monkeypatch):
     response.content=b'Date,Mine,Production\n2026-01-01,A,7\n'
     second,_=analysis.read_source(url)
     assert first[0][2]==1 and second[0][2]==7
+
+
+def test_sheet_decimal_comma_is_not_a_thousands_separator(monkeypatch):
+    import analysis
+    class Response:
+        content='Date,Mine,Production\n2099-11-02,LV-426,"37,32"\n2099-11-03,LV-426,39.27\n'.encode()
+        def raise_for_status(self):
+            pass
+    monkeypatch.setattr(analysis.requests,'get',lambda *a,**kw:Response())
+    rows,_=analysis.read_source('https://docs.google.com/spreadsheets/d/test_sheet/edit')
+    assert [row[2] for row in rows]==[37.32,39.27]

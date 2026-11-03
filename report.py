@@ -32,6 +32,8 @@ def make_report(series, results, settings, source):
     styles['Title'].alignment=0
     styles['Heading1'].textColor=colors.HexColor('#24566b')
     styles['Heading1'].fontSize=17
+    styles['Heading3'].spaceBefore=7
+    styles['Heading3'].spaceAfter=4
     styles['BodyText'].fontSize=10
     styles['BodyText'].leading=15
     story=[Paragraph('Mining production report',styles['Title']),
@@ -68,7 +70,7 @@ def make_report(series, results, settings, source):
             distance='not available' if ma!=ma else ('unbounded (zero baseline)' if ma==float('inf') else f'{ma:.1f}%')
             heading=Paragraph(f'{item["date"]}: {item["direction"]} at {item["value"]:.2f} tons',styles['Heading3'])
             body=Paragraph(f'Tests: {escape(", ".join(item["methods"]))}. Reference output: {item["baseline"]:.2f} tons. Absolute z-score: {item["z"]:.2f}. Distance from preceding moving average: {distance}.',styles['SmallNote'])
-            story.append(KeepTogether([heading,body,Spacer(1,2*mm)]))
+            story.append(KeepTogether([heading,body,Spacer(1,1*mm)]))
     def footer(canvas,doc):
         canvas.saveState()
         canvas.setFont('Helvetica',8)

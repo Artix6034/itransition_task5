@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mining production</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head>
+<body><main><nav><strong>Weyland-Yutani</strong><span>Mining production</span></nav><header><h1>Daily production</h1><p>Compare mine output and review unusual observations.</p></header>
+<form method="get"><section class="source"><label>Generator spreadsheet<input name="sheet" type="url" value="{{ sheet }}" placeholder="Google Sheets URL (leave blank for sample)"></label><button>Refresh data</button></section>
+<p class="source-note">{{ source }} · Read at {{ fetched }} · {{ results[total].count }} days · {{ series|length - 1 }} mines</p>
+<section class="controls">
+<label>IQR multiplier<input name="iqr" type="number" min="0.1" max="10" step="0.1" value="{{ settings.iqr }}"></label>
+<label>Z-score threshold<input name="z" type="number" min="0.1" max="10" step="0.1" value="{{ settings.z }}"></label>
+<label>Moving window<input name="window" type="number" min="1" max="180" value="{{ settings.window }}"></label>
+<label>Distance (%)<input name="percent" type="number" min="0.1" max="1000" step="0.1" value="{{ settings.percent }}"></label>
+<label>Grubbs alpha<input name="alpha" type="number" min="0.0001" max="0.2" step="0.0001" value="{{ settings.alpha }}"></label>
+</section><section class="view-controls">
+<label>Series<select name="mine">{% for name in series %}<option {% if name==selected %}selected{% endif %}>{{ name }}</option>{% endfor %}</select></label>
+<label>Chart<select name="chart">{% for mode in ['line','bar','stacked'] %}<option {% if mode==settings.chart %}selected{% endif %}>{{ mode }}</option>{% endfor %}</select></label>
+<label>Trend degree<select name="degree">{% for degree in [1,2,3,4] %}<option {% if degree==settings.degree %}selected{% endif %}>{{ degree }}</option>{% endfor %}</select></label>
+<label>Highlight<select name="method">{% for method in ['Any test'] + methods|list %}<option {% if method==settings.method %}selected{% endif %}>{{ method }}</option>{% endfor %}</select></label><button>Apply</button>
+</section></form>
+<section class="chart-panel"><img src="{{ url_for('chart',**args) }}" alt="{{ selected }} production, selected polynomial trend and flagged outliers"></section>
+<section class="section-heading"><h2>Statistics</h2><a class="button" href="{{ url_for('report',**args) }}">Download PDF report</a></section>
+<div class="table-wrap"><table><thead><tr><th>Series</th><th>Mean</th><th>Std. dev.</th><th>Median</th><th>IQR</th>{% for method in methods %}<th>{{ method }} flags</th>{% endfor %}</tr></thead><tbody>{% for name,result in results.items() %}<tr><th>{{ name }}</th>{% for key in ['mean','std','median','iqr'] %}<td>{{ '%.2f'|format(result[key]) }}</td>{% endfor %}{% for method in methods %}<td>{{ result.flags[method].sum() }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+<p class="note">Output is in tons. The last four columns count flagged observations. Standard deviation uses n−1. A moving average uses a full preceding window. Grubbs tests one most extreme observation per series and assumes normal data. Flags can also reflect weekly patterns and trends.</p>
+<h2>Flagged observations · {{ selected }}</h2><div class="table-wrap"><table><thead><tr><th>Date</th><th>Output</th><th>Direction</th><th>Tests</th></tr></thead><tbody>{% for item in results[selected].anomalies %}<tr><td>{{ item.date }}</td><td>{{ '%.2f'|format(item.value) }}</td><td>{{ item.direction }}</td><td>{{ item.methods|join(', ') }}</td></tr>{% else %}<tr><td colspan="4">No observations flagged at these thresholds.</td></tr>{% endfor %}</tbody></table></div>
+</main></body></html>
